@@ -8,7 +8,7 @@ on:
 
 env:
   REPOSITORY: ${{ github.event.repository.name }}
-  FIREBASE_REFRESH_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
+  FIREBASE_CLI_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
   PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID }}
   FIREBASE_SERVICE_ACCOUNT: ${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT }}
   FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
@@ -49,7 +49,7 @@ jobs:
             deactivate
           done
 
-          firebase deploy --debug --only functions --project $PROJECT_ID --token $FIREBASE_REFRESH_TOKEN
+          firebase deploy --debug --only functions --project $PROJECT_ID --token $FIREBASE_CLI_TOKEN
 
 
           
