@@ -12,7 +12,6 @@ cred = credentials.Certificate('service-account.json')
 app = initialize_app(cred)
 
 db = firestore.client(app)
-environment = os.getenv("ENVIRONMENT", "staging")
 
 
 def __get_stock_info(fmp_api_key: str, exchange: str, update_time: str) -> list[dict]:
@@ -76,10 +75,9 @@ def us_stock_price_sync(event):
     logger.log("US stock during market scheduler is running")
     FMP_API_KEY = StringParam("FMP_API_KEY")
     logger.log(f"FMP_API_KEY len: {len(FMP_API_KEY.value)}")
-    if environment == "production":
-        get_amex_stock_info(FMP_API_KEY.value)
-        time.sleep(0.1)
-        get_nyse_stock_info(FMP_API_KEY.value)
-        time.sleep(0.1)
+    get_amex_stock_info(FMP_API_KEY.value)
+    time.sleep(0.1)
+    get_nyse_stock_info(FMP_API_KEY.value)
+    time.sleep(0.1)
     get_nasdaq_stock_info(FMP_API_KEY.value)
     logger.log("US stock during market scheduler is done")
