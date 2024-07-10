@@ -1,0 +1,55 @@
+{
+  "functions": [
+    {
+      "source": "cloud-functions/taiwan-stock",
+      "codebase": "taiwan-stock",
+      "runtime": "python312",
+      "ignore": [
+        "venv",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    },
+    {
+      "source": "cloud-functions/us-stock",
+      "codebase": "us-stock",
+      "runtime": "python312",
+      "ignore": [
+        "venv",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    },    
+    {
+      "source": "cloud-functions/crypto-daily",
+      "codebase": "crypto-daily",
+      "runtime": "python312",
+      "ignore": [
+        "venv",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
+  "emulators": {
+    "firestore": {
+      "port": 8080
+    },
+    "ui": {
+      "enabled": true
+    },
+    "singleProjectMode": true,
+    "functions": {
+      "port": 5001
+    },
+    "pubsub": {
+      "port": 8085
+    }
+  }
+}
