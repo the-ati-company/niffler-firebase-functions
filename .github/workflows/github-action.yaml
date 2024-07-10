@@ -32,6 +32,7 @@ jobs:
           sudo apt update
           sudo apt install python3.12
           sudo apt install python3.12-venv
+          curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
           python3.12 -V
 
       - name: Install Firebase CLI
@@ -39,14 +40,12 @@ jobs:
 
       - name: Deploy to Firebase
         run: |
+          python3.12 -m venv venv
+          source venv/bin/activate
           for function_dir in cloud-functions/*; do
             echo $FIREBASE_SERVICE_ACCOUNT >> $function_dir/service-account.json
             echo "FMP_API_KEY=$FMP_API_KEY" >> $function_dir/.env
-            curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
-            python3.12 -m venv $function_dir/venv
-            source $function_dir/venv/bin/activate
             python3.12 -m pip install -r $function_dir/requirements.txt
-            deactivate
           done
 
           firebase deploy --debug --only functions --project $PROJECT_ID --token $FIREBASE_CLI_TOKEN
