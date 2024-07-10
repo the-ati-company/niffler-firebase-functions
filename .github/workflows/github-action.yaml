@@ -8,7 +8,6 @@ on:
 
 env:
   REPOSITORY: ${{ github.event.repository.name }}
-  BRANCH: ${{ github.GITHUB_REF_NAME }}
   FIREBASE_CLI_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
   FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
 
@@ -27,6 +26,7 @@ jobs:
       - name: Prepare Stg Envs
         if:  contains(fromJson('["staging","ymc/cloud-functions"]'), env.BRANCH)
         run: |
+          echo "BRANCH=staging" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID_STG }}" >> $GITHUB_ENV
           echo "FIREBASE_SERVICE_ACCOUNT=${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT_STG }}" >> $GITHUB_ENV
           
@@ -34,6 +34,7 @@ jobs:
       - name: Prepare Prod Envs
         if:  contains(fromJson('["production"]'), env.BRANCH)
         run: |
+          echo "BRANCH=production" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID }}" >> $GITHUB_ENV
           echo "FIREBASE_SERVICE_ACCOUNT=${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT }}" >> $GITHUB_ENV
 
@@ -52,13 +53,14 @@ jobs:
         run: npm install -g firebase-tools
 
       - name: Deploy to Firebase
-        if: contains(fromJson('["staging","ymc/cloud-functions"]'), env.BRANCH)
+        if: contains(fromJson('["staging"]'), env.BRANCH)
         run: |
           python3.12 -m venv venv
           source venv/bin/activate
           for function_dir in cloud-functions/*; do
             echo $FIREBASE_SERVICE_ACCOUNT >> $function_dir/service-account.json
             echo "FMP_API_KEY=$FMP_API_KEY" >> $function_dir/.env
+            echo "ENVIRONMENT=$ENVIRONMENT" >> $function_dir/.env
             python3.12 -m pip install -r $function_dir/requirements.txt
             cp -r venv $function_dir/venv/
           done
