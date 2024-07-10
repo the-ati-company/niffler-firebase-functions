@@ -63,7 +63,7 @@ def crypto_daily_price_sync():
         })
 
 
-@scheduler_fn.on_schedule(schedule="0 */12 * * *", timeout_sec=600)
+@scheduler_fn.on_schedule(schedule="0 */12 * * *", timeout_sec=100)
 def crypto_price_sync(event):
     logger.log("Crypto Daily is running")
     crypto_daily_price_sync()

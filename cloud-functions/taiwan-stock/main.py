@@ -86,7 +86,7 @@ def __taiwan_stock_price_sync():
             'ticker-price').document(id).set(stock)
 
 
-@scheduler_fn.on_schedule(schedule="40 15 * * 1-5", timezone="Asia/Taipei", timeout_sec=1200)
+@scheduler_fn.on_schedule(schedule="40 15 * * 1-5", timezone="Asia/Taipei", timeout_sec=800)
 def taiwan_stock_price_sync(event):
     logger.log("Taiwan stock during market scheduler is running")
     __taiwan_stock_price_sync()
