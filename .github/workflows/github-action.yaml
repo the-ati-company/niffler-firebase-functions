@@ -40,13 +40,13 @@ jobs:
 
       - name: Deploy to Firebase
         run: |
-          python3.12 -m venv ./venv
+          python3.12 -m venv venv
           source venv/bin/activate
           for function_dir in cloud-functions/*; do
             echo $FIREBASE_SERVICE_ACCOUNT >> $function_dir/service-account.json
             echo "FMP_API_KEY=$FMP_API_KEY" >> $function_dir/.env
             python3.12 -m pip install -r $function_dir/requirements.txt
-            cp venv $function_dir/venv
+            cp -r venv $function_dir/venv/
           done
           firebase deploy --debug --only functions --project $PROJECT_ID --token $FIREBASE_CLI_TOKEN
 
