@@ -43,6 +43,7 @@ jobs:
           python3.12 -m venv venv
           source venv/bin/activate
           for function_dir in cloud-functions/*; do
+            cp venv $function_dir/venv
             echo $FIREBASE_SERVICE_ACCOUNT >> $function_dir/service-account.json
             echo "FMP_API_KEY=$FMP_API_KEY" >> $function_dir/.env
             python3.12 -m pip install -r $function_dir/requirements.txt
