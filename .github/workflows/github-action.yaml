@@ -24,7 +24,7 @@ jobs:
           echo "Branch: $GITHUB_REF_NAME"
 
       - name: Prepare Stg Envs
-        if:  contains(fromJson('["staging","ymc/cloud-functions"]'), env.BRANCH)
+        if:  contains(fromJson('["staging","ymc/cloud-functions"]'), env.GITHUB_REF_NAME)
         run: |
           echo "BRANCH=staging" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID_STG }}" >> $GITHUB_ENV
