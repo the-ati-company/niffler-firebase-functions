@@ -22,9 +22,10 @@ jobs:
         run:  |
           echo "Repository: $REPOSITORY"
           echo "Branch: $GITHUB_REF_NAME"
+          echo "BRANCH=$GITHUB_REF_NAME" >> $GITHUB_ENV
 
       - name: Prepare Stg Envs
-        if:  contains(fromJson('["staging","ymc/cloud-functions"]'), env.GITHUB_REF_NAME)
+        if:  contains(fromJson('["staging","ymc/cloud-functions"]'), env.BRANCH)
         run: |
           echo "BRANCH=staging" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID_STG }}" >> $GITHUB_ENV
@@ -32,7 +33,7 @@ jobs:
           
 
       - name: Prepare Prod Envs
-        if:  contains(fromJson('["production"]'), env.GITHUB_REF_NAME)
+        if:  contains(fromJson('["production"]'), env.BRANCH)
         run: |
           echo "BRANCH=production" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID }}" >> $GITHUB_ENV
