@@ -32,7 +32,6 @@ jobs:
           echo "BRANCH=staging" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID_STG }}" >> $GITHUB_ENV
           printf "%s" "$SERVICE_ACCOUNT" > service-account.json
-          cat service-account.json
 
       - name: Prepare Prod Envs
         if:  contains(fromJson('["production"]'), env.BRANCH)
@@ -61,9 +60,9 @@ jobs:
         run: |
           python3.12 -m venv venv
           source venv/bin/activate
-          cat service-account.json
           for function_dir in cloud-functions/*; do
-            cp service-account.json $function_dir/
+            cp ./service-account.json $function_dir/service-account.json
+            cat $function_dir/service-account.json
             echo "FMP_API_KEY=$FMP_API_KEY" >> $function_dir/.env
             python3.12 -m pip install -r $function_dir/requirements.txt
             cp -r venv $function_dir/venv/
