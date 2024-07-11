@@ -28,16 +28,16 @@ jobs:
         if:  contains(fromJson('["staging","ymc/cloud-functions"]'), env.BRANCH)
         run: |
           echo "BRANCH=staging" >> $GITHUB_ENV
-          echo $NIFFLER_FIREBASE_PROJECT_ID_STG >> service-account.json
-          echo "FIREBASE_SERVICE_ACCOUNT=${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT_STG }}" >> $GITHUB_ENV
+          echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID_STG }}" >> $GITHUB_ENV
+          echo ${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT_STG }} >> service-account.json
           
 
       - name: Prepare Prod Envs
         if:  contains(fromJson('["production"]'), env.BRANCH)
         run: |
           echo "BRANCH=production" >> $GITHUB_ENV
-          echo $NIFFLER_FIREBASE_PROJECT_ID >> service-account.json
-          echo "FIREBASE_SERVICE_ACCOUNT=${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT }}" >> $GITHUB_ENV
+          echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID }}" >> $GITHUB_ENV
+          echo ${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT }} >> service-account.json
 
 
       - name: Install Python 3.12
@@ -59,7 +59,7 @@ jobs:
           python3.12 -m venv venv
           source venv/bin/activate
           for function_dir in cloud-functions/*; do
-            cp service-account.json >> $function_dir/service-account.json
+            cp service-account.json $function_dir/service-account.json
             echo "FMP_API_KEY=$FMP_API_KEY" >> $function_dir/.env
             python3.12 -m pip install -r $function_dir/requirements.txt
             cp -r venv $function_dir/venv/
