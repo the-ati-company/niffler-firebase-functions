@@ -24,7 +24,7 @@ def __get_stock_info(fmp_api_key: str, exchange: str, update_time: str) -> Tuple
     response = requests.get(link)
     data = response.json()
     parsed_data = {}
-    symbols = {}
+    symbols = []
 
     for d in data:
         if "symbol" not in d:
@@ -41,31 +41,15 @@ def __get_stock_info(fmp_api_key: str, exchange: str, update_time: str) -> Tuple
             "market": exchange,
             "updated": update_time
         }
-        if stock_ticker not in symbols:
-            symbols[stock_ticker] = []
-        symbols[stock_ticker].append(exchange)
+        symbols.append(stock_ticker)
     return parsed_data, symbols
 
 
-def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: Dict[str, List[str]]):
+def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: List[str]):
     db.collection(exchange).document("ticker-price").set(
         {"symbols": json.dumps(stocks)})
-    docs = db.collection("available_symbols").where(
-        filter=FieldFilter('__name__', "==", db.document("available_symbols/symbols"))).get()
-    if len(docs) > 0:
-        for doc in docs:
-            old_symbols = doc.to_dict()["symbols"]
-            for symbol, markets in old_symbols.items():
-                if symbol not in symbols:
-                    symbols[symbol] = markets
-                else:
-                    old_markets = set(markets)
-                    new_markets = set(symbols[symbol])
-                    all_markets = old_markets.union(new_markets)
-                    symbols[symbol] = list(all_markets)
-            break
     db.collection("available_symbols").document(
-        "symbols").set({"symbols": symbols})
+        exchange).set({"symbols": symbols})
 
 
 def get_nyse_stock_info(fmp_api_key: str) -> list[dict]:
