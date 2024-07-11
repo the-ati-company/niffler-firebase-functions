@@ -13,7 +13,7 @@ from firebase_functions.params import StringParam
 from google.cloud.firestore_v1.base_query import FieldFilter
 
 
-cred = credentials.Certificate('/service-account.json')
+cred = credentials.Certificate('service-account.json')
 app = initialize_app(cred)
 
 db = firestore.client(app)
