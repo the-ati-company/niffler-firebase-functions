@@ -32,7 +32,7 @@ jobs:
           
 
       - name: Prepare Prod Envs
-        if:  contains(fromJson('["production"]'), env.BRANCH)
+        if:  contains(fromJson('["production"]'), env.GITHUB_REF_NAME)
         run: |
           echo "BRANCH=production" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID }}" >> $GITHUB_ENV
