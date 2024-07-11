@@ -10,7 +10,11 @@
         "firebase-debug.log",
         "firebase-debug.*.log",
         "*.local"
-      ]
+      ],
+      "v2": {
+        "memory": "256MB",
+        "cpu": "0.167"
+      }
     },
     {
       "source": "cloud-functions/us-stock",
@@ -22,7 +26,11 @@
         "firebase-debug.log",
         "firebase-debug.*.log",
         "*.local"
-      ]
+      ],
+      "v2": {
+        "memory": "512MB",
+        "cpu": "0.333"
+      }
     },    
     {
       "source": "cloud-functions/crypto-daily",
@@ -34,7 +42,11 @@
         "firebase-debug.log",
         "firebase-debug.*.log",
         "*.local"
-      ]
+      ],
+      "v2": {
+        "memory": "512MB",
+        "cpu": "0.333"
+      }
     }
   ],
   "emulators": {

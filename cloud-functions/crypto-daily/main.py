@@ -55,7 +55,7 @@ def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: Dict[str
         if i > len_docs - 1:
             db.collection(exchange).document(f"ticker-price-{i}").delete()
 
-    time.sleep(1)
+    time.sleep(0.02)
 
     # adding the new documents
     for i in range(len(stocks)):

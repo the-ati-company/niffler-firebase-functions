@@ -70,7 +70,7 @@ def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: List[str
         if i > len_docs - 1:
             db.collection(exchange).document(f"ticker-price-{i}").delete()
 
-    time.sleep(1)
+    time.sleep(0.02)
 
     # adding the new documents
     for i in range(len(stocks)):
@@ -113,8 +113,8 @@ def us_stock_price_sync(event):
     FMP_API_KEY = StringParam("FMP_API_KEY")
     logger.log(f"FMP_API_KEY len: {len(FMP_API_KEY.value)}")
     get_amex_stock_info(FMP_API_KEY.value)
-    time.sleep(0.1)
+    time.sleep(0.01)
     get_nyse_stock_info(FMP_API_KEY.value)
-    time.sleep(0.1)
+    time.sleep(0.01)
     get_nasdaq_stock_info(FMP_API_KEY.value)
     logger.log("US stock during market scheduler is done")
