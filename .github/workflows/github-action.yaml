@@ -32,6 +32,7 @@ jobs:
           echo "BRANCH=staging" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID_STG }}" >> $GITHUB_ENV
           printf "%s" "$SERVICE_ACCOUNT" > service-account.json
+          cat service-account.json
 
       - name: Prepare Prod Envs
         if:  contains(fromJson('["production"]'), env.BRANCH)
