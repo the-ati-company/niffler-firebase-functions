@@ -108,7 +108,7 @@ def get_crypto_daily_price():
     __insert_stock_info(parsed_data, market, symbols)
 
 
-@scheduler_fn.on_schedule(schedule="0 */12 * * *", timeout_sec=300)
+@scheduler_fn.on_schedule(schedule="0 */2 * * *", timeout_sec=300)
 def crypto_price_sync(event):
     logger.log("Crypto Daily is running")
     get_crypto_daily_price()

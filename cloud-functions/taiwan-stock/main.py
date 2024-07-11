@@ -124,7 +124,7 @@ def get_taiwan_stock_price():
     __insert_stock_info(stocks, "TPEX", symbols)
 
 
-@scheduler_fn.on_schedule(schedule="40 15 * * 1-5", timezone="Asia/Taipei", timeout_sec=800)
+@scheduler_fn.on_schedule(schedule="0,15,30,45 8-17 * * 1-5", timezone="Asia/Taipei", timeout_sec=800)
 def taiwan_stock_price_sync(event):
     logger.log("Taiwan stock during market scheduler is running")
     get_taiwan_stock_price()
