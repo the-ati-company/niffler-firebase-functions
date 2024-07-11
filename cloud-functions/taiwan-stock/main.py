@@ -24,8 +24,31 @@ def __parse_float(float_str: str):
 
 
 def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: List[str]):
-    db.collection(exchange).document("ticker-price").set(
-        {"symbols": json.dumps(stocks)})
+    len_stocks = len(stocks.keys())
+    parsed_dicts = []
+    if len_stocks > 5000:
+        temp = {}
+        for id, value in stocks.items():
+            temp[id] = value
+            if len(temp) == 5000:
+                parsed_dicts.append(temp)
+                temp = {}
+        stocks = parsed_dicts
+    else:
+        stocks = [stocks]
+
+    # remove the extra documents
+    len_docs = len(stocks)
+    docs = db.collection(exchange).stream()
+    count = sum(1 for _ in docs)
+    for i in range(count):
+        if i > len_docs - 1:
+            db.collection(exchange).document(f"ticker-price-{i}").delete()
+
+    # adding the new documents
+    for i in range(stocks):
+        db.collection(exchange).document(f"ticker-price-{i}").set(
+            {"symbols": json.dumps(stocks[i], ensure_ascii=False)})
     db.collection("available_symbols").document(
         exchange).set({"symbols": symbols})
 
