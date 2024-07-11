@@ -68,7 +68,7 @@ def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: List[str
             db.collection(exchange).document(f"ticker-price-{i}").delete()
 
     # adding the new documents
-    for i in range(stocks):
+    for i in range(len(stocks)):
         db.collection(exchange).document(f"ticker-price-{i}").set(
             {"symbols": json.dumps(stocks[i], ensure_ascii=False)})
     db.collection("available_symbols").document(
