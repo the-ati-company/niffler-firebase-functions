@@ -107,7 +107,7 @@ def get_amex_stock_info(fmp_api_key: str) -> list[dict]:
     __insert_stock_info(parsed_data, exchange, symbols)
 
 
-@scheduler_fn.on_schedule(schedule="35 2,5,9,10,11,12,13,14,15,16,18,20,23 * * 1-5", timezone="America/New_York", timeout_sec=1500)
+@scheduler_fn.on_schedule(schedule="35 2,5,9,10,11,12,13,14,15,16,18,20,23 * * 1-5", timezone="America/New_York", timeout_sec=1500, memory=2048)
 def us_stock_price_sync(event):
     logger.log("US stock during market scheduler is running")
     FMP_API_KEY = StringParam("FMP_API_KEY")
