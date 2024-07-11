@@ -1,11 +1,15 @@
 import requests
+import json
 
 from datetime import datetime
+from typing import Tuple, List, Dict, Any
 
 from firebase_functions import scheduler_fn, logger
 from firebase_admin import initialize_app, credentials, firestore
 
-from firebase_functions.params import IntParam, StringParam
+from firebase_functions.params import StringParam
+
+from google.cloud.firestore_v1.base_query import FieldFilter
 
 cred = credentials.Certificate('service-account.json')
 app = initialize_app(cred)
@@ -26,13 +30,36 @@ def __get_crypto_list() -> list[str]:
             "ATOM"]
 
 
-def crypto_daily_price_sync():
+def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: Dict[str, List[str]]):
+    db.collection(exchange).document("ticker-price").set(
+        {"symbols": json.dumps(stocks)})
+    docs = db.collection("available_symbols").where(
+        filter=FieldFilter('__name__', "==", db.document("available_symbols/symbols"))).get()
+    if len(docs) > 0:
+        for doc in docs:
+            old_symbols = doc.to_dict()["symbols"]
+            for symbol, markets in old_symbols.items():
+                if symbol not in symbols:
+                    symbols[symbol] = markets
+                else:
+                    old_markets = set(markets)
+                    new_markets = set(symbols[symbol])
+                    all_markets = old_markets.union(new_markets)
+                    symbols[symbol] = list(all_markets)
+            break
+    db.collection("available_symbols").document(
+        "symbols").set({"symbols": symbols})
+
+
+def get_crypto_daily_price():
     cryptos = __get_crypto_list()
     currency = "USD"
     market = "CRYPTO"
     api_key = StringParam("FMP_API_KEY").value
     now = datetime.now()
     now = now.strftime("%Y-%m-%d %H:%M:%S")
+    parsed_data = {}
+    symbols = {}
     for crypto in cryptos:
         pair = f"{crypto}{currency}"
         base_link = f"https://financialmodelingprep.com/api/v3/historical-price-full/{pair}"
@@ -49,22 +76,28 @@ def crypto_daily_price_sync():
             continue
 
         data = data["historical"][0]
-
         stock_price = data["close"]
-        id = f"{crypto}-{market}"
 
-        db.collection('ticker-price').document(id).set({
+        id = f"{crypto}@{market}"
+
+        parsed_data[id] = {
             "symbol": crypto,
             "alias": crypto,
             "price": stock_price,
             "currency": currency,
             "market": market,
             "updated": now
-        })
+        }
+
+        if crypto not in symbols:
+            symbols[crypto] = []
+        symbols[crypto].append(market)
+
+    __insert_stock_info(parsed_data, market, symbols)
 
 
-@scheduler_fn.on_schedule(schedule="0 */12 * * *", timeout_sec=100)
+@scheduler_fn.on_schedule(schedule="0 */12 * * *", timeout_sec=300)
 def crypto_price_sync(event):
     logger.log("Crypto Daily is running")
-    crypto_daily_price_sync()
+    get_crypto_daily_price()
     logger.log("Crypto Daily is done")
