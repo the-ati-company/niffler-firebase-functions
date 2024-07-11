@@ -1,5 +1,6 @@
 import requests
 import json
+import time
 
 from datetime import datetime
 from typing import Tuple, List, Dict, Any
@@ -40,6 +41,8 @@ def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: Dict[str
             if len(temp) == 5000:
                 parsed_dicts.append(temp)
                 temp = {}
+        if len(temp) > 0:
+            parsed_dicts.append(temp)
         stocks = parsed_dicts
     else:
         stocks = [stocks]
@@ -51,6 +54,8 @@ def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: Dict[str
     for i in range(count):
         if i > len_docs - 1:
             db.collection(exchange).document(f"ticker-price-{i}").delete()
+
+    time.sleep(1)
 
     # adding the new documents
     for i in range(len(stocks)):
