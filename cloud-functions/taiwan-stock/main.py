@@ -23,25 +23,11 @@ def __parse_float(float_str: str):
         return 0
 
 
-def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: Dict[str, List[str]]):
+def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: List[str]):
     db.collection(exchange).document("ticker-price").set(
         {"symbols": json.dumps(stocks)})
-    docs = db.collection("available_symbols").where(
-        filter=FieldFilter('__name__', "==", db.document("available_symbols/symbols"))).get()
-    if len(docs) > 0:
-        for doc in docs:
-            old_symbols = doc.to_dict()["symbols"]
-            for symbol, markets in old_symbols.items():
-                if symbol not in symbols:
-                    symbols[symbol] = markets
-                else:
-                    old_markets = set(markets)
-                    new_markets = set(symbols[symbol])
-                    all_markets = old_markets.union(new_markets)
-                    symbols[symbol] = list(all_markets)
-            break
     db.collection("available_symbols").document(
-        "symbols").set({"symbols": symbols})
+        exchange).set({"symbols": symbols})
 
 
 def get_twse_stock_info() -> Tuple[Dict[str, Any], List[str]]:
@@ -50,7 +36,7 @@ def get_twse_stock_info() -> Tuple[Dict[str, Any], List[str]]:
     data = response.json()
     data = data["data"]
     parsed_data = {}
-    symbols = {}
+    symbols = []
     now = datetime.now()
     now = now.strftime("%Y-%m-%d %H:%M:%S")
     logger.log(f"Updating {len(data)} twse stocks")
@@ -69,9 +55,7 @@ def get_twse_stock_info() -> Tuple[Dict[str, Any], List[str]]:
             "market": "TWSE",
             "updated": now
         }
-        if stock_ticker not in symbols:
-            symbols[stock_ticker] = []
-        symbols[stock_ticker].append("TWSE")
+        symbols.append(stock_ticker)
     return parsed_data, symbols
 
 
@@ -81,7 +65,7 @@ def get_tpex_stock_info() -> Tuple[Dict[str, Any], List[str]]:
     response = requests.get(link)
     data = response.json()
     parsed_data = {}
-    symbols = {}
+    symbols = []
     now = datetime.now()
     now = now.strftime("%Y-%m-%d %H:%M:%S")
     logger.log(f"Updating {len(data)} tpex stocks")
@@ -101,9 +85,7 @@ def get_tpex_stock_info() -> Tuple[Dict[str, Any], List[str]]:
             "market": "TPEX",
             "updated": now
         }
-        if stock_ticker not in symbols:
-            symbols[stock_ticker] = []
-        symbols[stock_ticker].append("TPEX")
+        symbols.append(stock_ticker)
     return parsed_data, symbols
 
 

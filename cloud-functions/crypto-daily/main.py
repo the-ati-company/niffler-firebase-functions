@@ -33,22 +33,8 @@ def __get_crypto_list() -> list[str]:
 def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: Dict[str, List[str]]):
     db.collection(exchange).document("ticker-price").set(
         {"symbols": json.dumps(stocks)})
-    docs = db.collection("available_symbols").where(
-        filter=FieldFilter('__name__', "==", db.document("available_symbols/symbols"))).get()
-    if len(docs) > 0:
-        for doc in docs:
-            old_symbols = doc.to_dict()["symbols"]
-            for symbol, markets in old_symbols.items():
-                if symbol not in symbols:
-                    symbols[symbol] = markets
-                else:
-                    old_markets = set(markets)
-                    new_markets = set(symbols[symbol])
-                    all_markets = old_markets.union(new_markets)
-                    symbols[symbol] = list(all_markets)
-            break
     db.collection("available_symbols").document(
-        "symbols").set({"symbols": symbols})
+        exchange).set({"symbols": symbols})
 
 
 def get_crypto_daily_price():
@@ -59,7 +45,7 @@ def get_crypto_daily_price():
     now = datetime.now()
     now = now.strftime("%Y-%m-%d %H:%M:%S")
     parsed_data = {}
-    symbols = {}
+    symbols = []
     for crypto in cryptos:
         pair = f"{crypto}{currency}"
         base_link = f"https://financialmodelingprep.com/api/v3/historical-price-full/{pair}"
@@ -89,9 +75,7 @@ def get_crypto_daily_price():
             "updated": now
         }
 
-        if crypto not in symbols:
-            symbols[crypto] = []
-        symbols[crypto].append(market)
+        symbols.append(crypto)
 
     __insert_stock_info(parsed_data, market, symbols)
 
