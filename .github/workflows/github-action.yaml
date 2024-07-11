@@ -26,19 +26,21 @@ jobs:
 
       - name: Prepare Stg Envs
         if:  contains(fromJson('["staging","ymc/cloud-functions"]'), env.BRANCH)
+        env: 
+          SERVICE_ACCOUNT: ${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT_STG }}
         run: |
           echo "BRANCH=staging" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID_STG }}" >> $GITHUB_ENV
-          echo "${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT_STG }}" >> service-account.json
-          
+          printf "%s" "$SERVICE_ACCOUNT" > service-account.json
 
       - name: Prepare Prod Envs
         if:  contains(fromJson('["production"]'), env.BRANCH)
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT }}
         run: |
           echo "BRANCH=production" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID }}" >> $GITHUB_ENV
-          echo "${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT }}"" >> service-account.json
-
+          printf "%s" "$SERVICE_ACCOUNT" > service-account.json
 
       - name: Install Python 3.12
         run: |
