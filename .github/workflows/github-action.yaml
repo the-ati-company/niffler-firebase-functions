@@ -29,7 +29,7 @@ jobs:
         run: |
           echo "BRANCH=staging" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID_STG }}" >> $GITHUB_ENV
-          echo ${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT_STG }} >> service-account.json
+          echo "${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT_STG }}" >> service-account.json
           
 
       - name: Prepare Prod Envs
@@ -37,7 +37,7 @@ jobs:
         run: |
           echo "BRANCH=production" >> $GITHUB_ENV
           echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID }}" >> $GITHUB_ENV
-          echo ${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT }} >> service-account.json
+          echo "${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT }}"" >> service-account.json
 
 
       - name: Install Python 3.12
