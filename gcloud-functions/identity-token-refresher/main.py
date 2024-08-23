@@ -1,5 +1,8 @@
 
 import os
+
+from datetime import datetime
+
 from firebase_functions import scheduler_fn, logger
 from firebase_admin import initialize_app, credentials, firestore
 
@@ -22,7 +25,10 @@ def refresh_identity():
         cloud_run_service_account_file_path, target_audience=service_url)
     credentials.refresh(Request())
     db.collection("cloud-run-identity").document("token").set(
-        {"token": credentials.token})
+        {"token": credentials.token,
+         "expires": credentials.expiry,
+         "updated": datetime.now().isoformat()
+         })
 
 
 @scheduler_fn.on_schedule(schedule="0,20,40 * * * *", timeout_sec=300)
