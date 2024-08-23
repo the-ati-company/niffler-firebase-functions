@@ -1,7 +1,7 @@
 {
   "functions": [
     {
-      "source": "cloud-functions/taiwan-stock",
+      "source": "ticker-price-functions/taiwan-stock",
       "codebase": "taiwan-stock",
       "runtime": "python312",
       "ignore": [
@@ -13,7 +13,7 @@
       ]
     },
     {
-      "source": "cloud-functions/us-stock",
+      "source": "ticker-price-functions/us-stock",
       "codebase": "us-stock",
       "runtime": "python312",
       "ignore": [
@@ -25,8 +25,20 @@
       ]
     },    
     {
-      "source": "cloud-functions/crypto-daily",
+      "source": "ticker-price-functions/crypto-daily",
       "codebase": "crypto-daily",
+      "runtime": "python312",
+      "ignore": [
+        "venv",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    },
+    {
+      "source": "gcloud-functions/identity-token-refresher",
+      "codebase": "identity-token-refresher",
       "runtime": "python312",
       "ignore": [
         "venv",
