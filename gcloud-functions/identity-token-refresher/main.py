@@ -27,7 +27,7 @@ def refresh_identity():
     db.collection("cloud-run-identity").document("token").set(
         {"token": credentials.token,
          "expires": credentials.expiry,
-         "updated": datetime.now().isoformat()
+         "updated": datetime.now()
          })
 
 
