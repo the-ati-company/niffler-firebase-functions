@@ -79,7 +79,8 @@ jobs:
           python3.12 -m venv venv
           source venv/bin/activate
           for function_dir in gcloud-functions/*; do
-            cp could-run-service-account.json $function_dir/service-account.json
+            cp service-account.json $function_dir/service-account.json
+            cp could-run-service-account.json $function_dir/could-run-service-account.json
             echo "CLOUD_RUN_SERVICE_URL=$CLOUD_RUN_SERVICE_URL" >> $function_dir/.env
             python3.12 -m pip install -r $function_dir/requirements.txt
             cp -r venv $function_dir/venv/
