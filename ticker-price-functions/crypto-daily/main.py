@@ -27,8 +27,11 @@ def __get_crypto_list() -> list[str]:
             "SHIB",
             "DOT",
             "LINK",
+            "LTC",
+            "BCH",
             "XLM",
-            "ATOM"]
+            "ATOM",
+            "SOL"]
 
 
 def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: Dict[str, List[str]]):
