@@ -8,9 +8,7 @@ on:
 
 env:
   REPOSITORY: ${{ github.event.repository.name }}
-  FIREBASE_REFRESH_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
-  PROJECT_ID: ${{ vars.FIREBASE_PROJECT_ID_STG }}
-  FIREBASE_SERVICE_ACCOUNT: ${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT }}
+  FIREBASE_CLI_TOKEN: ${{ secrets.FIREBASE_CLI_TOKEN }}
   FMP_API_KEY: ${{ secrets.FMP_API_KEY }}
 
 jobs:
@@ -24,6 +22,31 @@ jobs:
         run:  |
           echo "Repository: $REPOSITORY"
           echo "Branch: $GITHUB_REF_NAME"
+          echo "BRANCH=$GITHUB_REF_NAME" >> $GITHUB_ENV
+
+      - name: Prepare Stg Envs
+        if:  contains(fromJson('["staging","ymc/cloud-functions"]'), env.BRANCH)
+        env: 
+          SERVICE_ACCOUNT: ${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT_STG }}
+          CLOUD_RUN_SERVICE_ACCOUNT_FILE_NIFFLER: ${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT_FILE_NIFFLER_STG }}
+        run: |
+          echo "BRANCH=staging" >> $GITHUB_ENV
+          echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID_STG }}" >> $GITHUB_ENV
+          echo "CLOUD_RUN_SERVICE_URL=${{ secrets.NIFFLER_BACKEND_API_URL_STG }}" >> $GITHUB_ENV
+          printf "%s" "$SERVICE_ACCOUNT" > service-account.json
+          printf "%s" "$CLOUD_RUN_SERVICE_ACCOUNT_FILE_NIFFLER" > could-run-service-account.json
+
+      - name: Prepare Prod Envs
+        if:  contains(fromJson('["production"]'), env.BRANCH)
+        env:
+          SERVICE_ACCOUNT: ${{ secrets.NIFFLER_FIREBASE_SERVICE_ACCOUNT }}
+          CLOUD_RUN_SERVICE_ACCOUNT_FILE_NIFFLER: ${{ secrets.CLOUD_RUN_SERVICE_ACCOUNT_FILE_NIFFLER }}
+        run: |
+          echo "BRANCH=production" >> $GITHUB_ENV
+          echo "PROJECT_ID=${{ vars.NIFFLER_FIREBASE_PROJECT_ID }}" >> $GITHUB_ENV
+          echo "CLOUD_RUN_SERVICE_URL=${{ secrets.NIFFLER_BACKEND_API_URL }}" >> $GITHUB_ENV
+          printf "%s" "$SERVICE_ACCOUNT" > service-account.json
+          printf "%s" "$CLOUD_RUN_SERVICE_ACCOUNT_FILE_NIFFLER" > could-run-service-account.json
 
       - name: Install Python 3.12
         run: |
@@ -32,25 +55,41 @@ jobs:
           sudo apt update
           sudo apt install python3.12
           sudo apt install python3.12-venv
+          curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
           python3.12 -V
 
       - name: Install Firebase CLI
         run: npm install -g firebase-tools
 
-      - name: Deploy to Firebase
+      - name: Prepare Ticker Price Functions
+        if: contains(fromJson('["staging"]'), env.BRANCH)
         run: |
-          for function_dir in cloud-functions/*; do
-            echo $FIREBASE_SERVICE_ACCOUNT >> $function_dir/service-account.json
+          python3.12 -m venv venv
+          source venv/bin/activate
+          for function_dir in ticker-price-functions/*; do
+            cp service-account.json $function_dir/service-account.json
             echo "FMP_API_KEY=$FMP_API_KEY" >> $function_dir/.env
-            curl -sS https://bootstrap.pypa.io/get-pip.py | python3.12
-            python3.12 -m venv $function_dir/venv
-            source $function_dir/venv/bin/activate
             python3.12 -m pip install -r $function_dir/requirements.txt
-            deactivate
+            cp -r venv $function_dir/venv/
           done
 
-          firebase deploy --debug --only functions --project $PROJECT_ID --token $FIREBASE_REFRESH_TOKEN
+      - name: Prepare gCloud Functions
+        if: contains(fromJson('["staging"]'), env.BRANCH)
+        run: |
+          python3.12 -m venv venv
+          source venv/bin/activate
+          for function_dir in gcloud-functions/*; do
+            cp service-account.json $function_dir/service-account.json
+            cp could-run-service-account.json $function_dir/could-run-service-account.json
+            echo "CLOUD_RUN_SERVICE_URL=$CLOUD_RUN_SERVICE_URL" >> $function_dir/.env
+            python3.12 -m pip install -r $function_dir/requirements.txt
+            cp -r venv $function_dir/venv/
+          done
 
+      - name: Deploy Functions to Firebase
+        if: contains(fromJson('["staging"]'), env.BRANCH)
+        run: |
+          firebase deploy --debug --only functions --project $PROJECT_ID --token $FIREBASE_CLI_TOKEN
 
           
   

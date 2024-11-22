@@ -151,8 +151,8 @@ test*
 *test*
 
 .firebaserc
-niffler-stg-firebase-adminsdk-g3ind-da83d778a0.json
-
+service-account.json
+could-run-service-account.json
 
 
 #########################
