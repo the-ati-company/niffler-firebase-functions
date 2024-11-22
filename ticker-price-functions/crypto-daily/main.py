@@ -20,18 +20,18 @@ db = firestore.client(app)
 
 def __get_crypto_list() -> list[str]:
     return ["BTC",
-            "ETH",
             "BNB",
             "XRP",
             "DOGE",
-            "SHIB",
             "DOT",
             "LINK",
             "LTC",
             "BCH",
             "XLM",
             "ATOM",
-            "SOL"]
+            "SOL",
+            "KAU",
+            "KAG"]
 
 
 def __insert_stock_info(stocks: Dict[str, Any], exchange: str, symbols: Dict[str, List[str]]):
